@@ -33,8 +33,7 @@ namespace ElasticsearchExploration.WebApi.Controllers
 
         private static IElasticClient BuildElasticClient()
         {
-            var settings = new ConnectionSettings(new Uri("http://localhost:9200")).DefaultIndex("manuscripts");
-            return new ElasticClient(settings);
+            return new ElasticClient(new ConnectionSettings().DefaultIndex("manuscripts"));
         }
     }
 }

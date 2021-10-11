@@ -17,7 +17,7 @@ namespace ElasticsearchExploration.WebApi.Controllers
         public async Task<IActionResult> AddManuscript()
         {
             var manuscript = new Manuscript(Guid.NewGuid(), "Pharrel Williams", 4.20);
-            var indexResponse = await ElasticClient.IndexDocumentAsync(manuscript);
+            await ElasticClient.IndexDocumentAsync(manuscript);
 
             return CreatedAtRoute(nameof(GetManuscript), new { guid = manuscript.Guid }, manuscript);
         }
@@ -25,9 +25,13 @@ namespace ElasticsearchExploration.WebApi.Controllers
         [HttpGet("{guid}", Name = nameof(GetManuscript))]
         public async Task<ActionResult<Manuscript>> GetManuscript(Guid guid)
         {
-            var queryResult = await ElasticClient.SearchAsync<Manuscript>(s =>
-                s.Query(q => q.Match(m => m.Field(f => f.Guid).Query(guid.ToString())))
-            );
+            var query = new MatchQuery
+            {
+                Field = Infer.Field<Manuscript>(m => m.Guid),
+                Query = guid.ToString()
+            };
+            var queryResult = await ElasticClient.SearchAsync<Manuscript>(new SearchRequest {Query = query});
+
             return Ok(queryResult.Documents.First());
         }
 
